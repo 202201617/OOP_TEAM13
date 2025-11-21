@@ -15,8 +15,15 @@ screen = pygame.display.set_mode((window_W, window_H))
 pygame.display.set_caption("학교 가BOO자고!")
 clock = pygame.time.Clock()
 
-FONT = pygame.font.Font(None, 50)
-FONT_BIG = pygame.font.Font(None, 80)
+FONT = pygame.font.Font("DNFBitBitTTF.ttf", 50)
+FONT_TITLE = pygame.font.Font("DNFBitBitTTF.ttf", 80)
+
+# ------------------------
+# 배경 이미지 로드
+# ------------------------
+Main_BUildging = pygame.image.load("OOP_TEAM13/image/Main_Building.png").convert()
+Main_BUildging = pygame.transform.scale(Main_BUildging, (window_W, window_H))  # 창 크기에 맞게 늘리기/줄이기
+
 
 #----------------------------------------
 # 색상 정의
@@ -41,12 +48,13 @@ while running:
         if event.type == QUIT:
             running = False
 
-    # 화면 채우기
-    screen.fill(WHITE)
+    # 배경 이미지 그리기
+    screen.blit(Main_BUildging, (0, 0))
 
-    # 텍스트 표시 예시
-    txt = FONT.render("Let’s BOO to School!", True, BLACK)
+    # 텍스트 표시
+    txt = FONT_TITLE.render("학교 가BOO자고!", True, BLACK)
     screen.blit(txt, (50, 50))
+
 
     # 화면 업데이트
     pygame.display.update()
