@@ -63,8 +63,7 @@ game_state = "menu"
 # 메인 루프
 running = True
 while running:
-
-    # 이벤트 처리
+    # ================= 이벤트 처리 =================
     for event in pygame.event.get():
         if event.type == QUIT:
             running = False
