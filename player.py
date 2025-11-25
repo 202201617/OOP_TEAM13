@@ -1,18 +1,19 @@
 import pygame
 
 class Player:
-    def __init__(self, x, y, image_path, screen_width, ground_level):
-        # 크기 (147 × 220)
-        self.width = 147
-        self.height = 220
+    def __init__(self, x, y, screen_width, ground_level):
+        # 이미지 크기
+        self.width = 100
+        self.height = 144
 
-        # 초기 위치
-        self.x = x
-        self.y = y
+        self.start_x = x
+        self.start_y = y
+        
+        self.reset()
 
-        # 속도
-        self.vx = 0
-        self.vy = 0
+        # 이미지 로드
+        self.image = pygame.image.load("image/boo.png").convert_alpha()
+        self.image = pygame.transform.scale(self.image, (self.width, self.height))
 
         # 물리 요소
         self.gravity = 1
@@ -20,17 +21,27 @@ class Player:
         self.on_ground = True
 
         # 이동 가능한 범위 (화면 절반까지만)
-        self.left_limit = 0 + 20
+        self.left_limit = 20
         self.right_limit = screen_width // 2 - self.width - 20
 
         # 바닥 Y좌표
         self.ground_y = ground_level
 
-        # 이미지 로드
-        self.image = pygame.image.load("OOP_TEAM13/image/boo.png").convert_alpha()
-        self.image = pygame.transform.scale(self.image, (self.width, self.height))
+    def reset(self):
+        self.hp = 3
+        self.grade = 0.00
 
-        # 충돌 박스
+        self.have_B = False
+        self.have_O_lib = False
+        self.have_O_stu = False
+
+        self.x = self.start_x
+        self.y = self.start_y
+
+        self.vx = 0
+        self.vy = 0
+        self.on_ground = True
+
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
 
     # 키 입력 처리
@@ -69,6 +80,9 @@ class Player:
             self.rect.y = self.ground_y
             self.vy = 0
             self.on_ground = True
+
+        self.x = self.rect.x
+        self.y = self.rect.y
 
     # 부 그리기
     def draw(self, screen):

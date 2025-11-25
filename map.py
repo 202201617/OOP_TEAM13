@@ -1,129 +1,67 @@
 import pygame
+from player import *
+from object import create_random_items
 
-class MapManager:
-    """
-    맵 진행 + 분기 + 엔딩(클리어/재수강/기숙사)을 모두 관리하는 클래스
-
-    맵 구성:
-      - baeknyon      : 백년관
-      - library       : 도서관
-      - student       : 학생회관
-      - myeongsu      : 명수당 (특수 조건으로 진입)
-      - gyoyang       : 교양관
-      - classroom     : 강의실
-
-    엔딩 전용 맵:
-      - jaesugang     : 재수강
-      - dorm          : 기숙사
-    """
-
-    def __init__(self, window_W, window_H, font_path="DNFBitBitTTF.ttf",
-                 map_duration_ms=30000):
+class Map:
+    def __init__(self, window_W, window_H, font_path="DNFBitBitTTF.ttf", map_duration_ms=30000):
         self.window_W = window_W
         self.window_H = window_H
-        self.duration = map_duration_ms  # 일반 맵 30초
+        self.duration = map_duration_ms
 
-        # ---------- 폰트 ----------
         self.font = pygame.font.Font(font_path, 40)
         self.font_big = pygame.font.Font(font_path, 80)
 
-        # ---------- 이미지 로드 ----------
         self.images = {
-            "baeknyon":   self._load("OOP_TEAM13/image/Main_Building.png"),
-            "library":    self._load("OOP_TEAM13/image/University_Library.png"),
-            "student":    self._load("OOP_TEAM13/image/Student_Hall.png"),
-            "myeongsu":   self._load("OOP_TEAM13/image/Bonus_Stage.png"),
-            "gyoyang":    self._load("OOP_TEAM13/image/Liberal_Arts_Building.png"),
-            "classroom":  self._load("OOP_TEAM13/image/강의실.png"),
-            "jaesugang":  self._load("OOP_TEAM13/image/재수강.png"),
-            "dorm":       self._load("OOP_TEAM13/image/기숙사.png"),
+            "main_building": self._load("image/main_building.png"),
+            "library": self._load("image/library.png"),
+            "student_hall": self._load("image/student_hall.png"),
+            "bonus": self._load("image/bonus.png"),
+            "liberal_arts_building": self._load("image/liberal_arts_building.png"),
+            "classroom": self._load("image/classroom.png"),
+            "retry": self._load("image/retry.png"),
+            "dormitory": self._load("image/dormitory.png")
         }
 
-        # ---------- 진행 상태 ----------
-        self.current_stage = "baeknyon"
+        # 진행 상태
+        self.current_stage = "main_building"
         self.stage_start_ticks = None
-        self.state = "playing"  # playing / ending_clear / ending_retake / ending_sleep
+        self.state = "playing" #playing, ending_classroom, ending_retry, ending_dorm
 
-        # ---------- 아이템 상태 (명수당 조건) ----------
-        self.has_B = False
-        self.has_O_library = False
-        self.has_O_student = False
+        # 명수당 지속 시간
+        self.bonus_duration = 10000
 
-        # ---------- 명수당 ----------
-        self.myeongsu_duration = 10_000  # 10초
+        # 엔딩 처리
+        from ending import Ending
+        self.ending_ui = Ending(window_W, window_H)
 
-        # ---------- 엔딩 처리 ----------
-        self.ending_start_ticks = None
-        self.ENDING_SHOW_TIME = 3000  # 3초 유지
-        self.ENDING_FADE_TIME = 2000  # 2초 페이드아웃
+        #아이템
+        self.items = []
+        self.item_speed = 7
 
-        # 엔딩 학점 표시용
-        self.last_gpa = 0.0
+    def spawn_stage_items(self, stage_name, player):
+        self.items = create_random_items(30, self.item_speed, self.window_W, self.window_H, stage_name, player)
 
 
-    # -------------------------------------------------
-    # 이미지 로드
-    # -------------------------------------------------
-    def _load(self, path):
-        img = pygame.image.load(path).convert()
-        img = pygame.transform.scale(img, (self.window_W, self.window_H))
-        return img
-
-
-    # -------------------------------------------------
-    # 아이템 획득 함수 (main.py에서 호출)
-    # -------------------------------------------------
-    def collect_B(self):
-        self.has_B = True
-
-    def collect_O_library(self):
-        self.has_O_library = True
-
-    def collect_O_student(self):
-        self.has_O_student = True
-
-
-    # -------------------------------------------------
-    # 게임 재시작
-    # -------------------------------------------------
+    def _load(self, img_path):
+        self.img = pygame.image.load(img_path).convert_alpha()
+        return self.img
+    
     def reset(self):
-        self.current_stage = "baeknyon"
+        self.current_stage = "main_building"
         self.stage_start_ticks = None
         self.state = "playing"
-        self.entered_myeongsu = False
 
-        # 아이템 상태 초기화
-        self.has_B = False
-        self.has_O_library = False
-        self.has_O_student = False
-
+        self.entered_bonus = False
+        
         self.ending_start_ticks = None
 
-
-    # -------------------------------------------------
-    # 학점 텍스트 생성
-    # -------------------------------------------------
-    def _grade_text(self):
-        g = self.last_gpa
-        if g > 4.5: g = 4.5
-
-        if g >= 4.5:
-            return f"{g:.2f}학점 A+ 입니다"
-        elif g >= 4.0:
-            return f"{g:.2f}학점 A 입니다"
-        elif g >= 3.5:
-            return f"{g:.2f}학점 B+ 입니다"
-        elif g >= 3.0:
-            return f"{g:.2f}학점 B 입니다"
-        else:
-            return f"{g:.2f}학점입니다"
-
-
-    # -------------------------------------------------
     # 맵 진행 로직
-    # -------------------------------------------------
-    def update(self, gpa: float, hp: int):
+    def update(self, player):
         if self.state != "playing":
+            return
+        
+        if player.hp <= 0:
+            self.state = "ending_dorm"
             return
 
         now = pygame.time.get_ticks()
@@ -131,120 +69,78 @@ class MapManager:
             self.stage_start_ticks = now
 
         elapsed = now - self.stage_start_ticks
-        self.last_gpa = gpa  # 엔딩에 사용
 
-        # ------ 백년관 ------
-        if self.current_stage == "baeknyon":
+        # 백년관 
+        if self.current_stage == "main_building":
             if elapsed >= self.duration:
                 self.current_stage = "library"
                 self.stage_start_ticks = now
 
+                self.spawn_stage_items("library", player)
+
         # ------ 도서관 ------
         elif self.current_stage == "library":
             if elapsed >= self.duration:
-                self.current_stage = "student"
+                self.current_stage = "student_hall"
                 self.stage_start_ticks = now
 
+                self.spawn_stage_items("student_hall", player)
+
         # ------ 학생회관 ------
-        elif self.current_stage == "student":
+        elif self.current_stage == "student_hall":
             # B/O/O 모두 모으면 명수당
-            if self.has_B and self.has_O_library and self.has_O_student:
-                self.current_stage = "myeongsu"
+
+            #학생회관에 있던 도중 명수당으로 이동하면 어떻게 되는지?
+            if player.have_B and player.have_O_lib and player.have_O_stu:
+                self.current_stage = "bonus"
                 self.stage_start_ticks = now
+
+                self.spawn_stage_items("bonus", player)
 
             # 30초 지나면 교양관
             elif elapsed >= self.duration:
-                self.current_stage = "gyoyang"
+                self.current_stage = "liberal_arts_building"
                 self.stage_start_ticks = now
 
+                self.spawn_stage_items("liberal_arts_building", player)
+
+   
         # ------ 명수당 (10초) ------
-        elif self.current_stage == "myeongsu":
-            if elapsed >= self.myeongsu_duration:
-                self.current_stage = "gyoyang"
+        elif self.current_stage == "bonus":
+            if elapsed >= self.bonus_duration:
+                self.current_stage = "liberal_arts_building"
                 self.stage_start_ticks = now
+
+                self.spawn_stage_items("liberal_arts_building", player)
 
         # ------ 교양관 ------
-        elif self.current_stage == "gyoyang":
-            # 죽으면 기숙사 엔딩
-            if hp <= 0:
-                self.state = "ending_sleep"
-                self.ending_start_ticks = pygame.time.get_ticks()
-                return
-
+        elif self.current_stage == "liberal_arts_building":
             # 30초 버티면 강의실 → GPA 판정
             if elapsed >= self.duration:
-                self.current_stage = "classroom"
-                self.stage_start_ticks = now
 
-                if gpa <= 2.5:
-                    self.state = "ending_retake"
+                if player.grade <= 2.5:
+                    self.state = "ending_retry"
                 else:
-                    self.state = "ending_clear"
+                    self.state = "ending_classroom"
 
                 self.ending_start_ticks = pygame.time.get_ticks()
 
 
-    # -------------------------------------------------
-    # 그리기
-    # -------------------------------------------------
-    def draw(self, screen):
+    def draw(self, screen, player):
         # 플레이 중이면 현재 맵만 출력
         if self.state == "playing":
             screen.blit(self.images[self.current_stage], (0, 0))
             return
 
+        # 엔딩
+        if self.state == "ending_retry":
+            self.ending_ui.ending_retry(screen, player.grade)
+        
+        elif self.state == "ending_dorm":
+            self.ending_ui.ending_dorm(screen, player.grade)
 
-        # ------ 재수강 엔딩 ------
-        if self.state == "ending_retake":
-            screen.blit(self.images["jaesugang"], (0, 0))
-
-            t1 = self.font_big.render("재수강...", True, (255, 255, 255))
-            t2 = self.font.render("BOO...는 재수강을 해야합니다...", True, (255, 255, 255))
-
-            screen.blit(t1, t1.get_rect(center=(self.window_W//2, self.window_H//2 - 40)))
-            screen.blit(t2, t2.get_rect(center=(self.window_W//2, self.window_H//2 + 40)))
-            return
-
-
-        # ------ 기숙사 엔딩 ------
-        if self.state == "ending_sleep":
-            screen.blit(self.images["dorm"], (0, 0))
-
-            t1 = self.font_big.render("잠...", True, (255, 255, 255))
-            t2 = self.font.render("BOO...는 자야합니다...", True, (255, 255, 255))
-
-            screen.blit(t1, t1.get_rect(center=(self.window_W//2, self.window_H//2 - 40)))
-            screen.blit(t2, t2.get_rect(center=(self.window_W//2, self.window_H//2 + 40)))
-            return
-
-
-        # ------ 클리어 엔딩 (강의실) ------
-        if self.state == "ending_clear":
-            now = pygame.time.get_ticks()
-            elapsed = now - self.ending_start_ticks
-
-            # 1) 강의실 화면 띄우기
-            screen.blit(self.images["classroom"], (0, 0))
-
-            # 2) 페이드아웃
-            if elapsed > self.ENDING_SHOW_TIME:
-                fade_elapsed = elapsed - self.ENDING_SHOW_TIME
-                alpha = min(255, int(255 * (fade_elapsed / self.ENDING_FADE_TIME)))
-
-                fade = pygame.Surface((self.window_W, self.window_H))
-                fade.fill((0, 0, 0))
-                fade.set_alpha(alpha)
-                screen.blit(fade, (0, 0))
-
-            # 3) 텍스트
-            t1 = self.font_big.render("클리어!", True, (255, 255, 255))
-            t2 = self.font.render("BOO가 강의실에 도착 했습니다!", True, (255, 255, 255))
-            t3 = self.font.render(self._grade_text(), True, (255, 255, 0))
-
-            screen.blit(t1, t1.get_rect(center=(self.window_W//2, self.window_H//2 - 60)))
-            screen.blit(t2, t2.get_rect(center=(self.window_W//2, self.window_H//2)))
-            screen.blit(t3, t3.get_rect(center=(self.window_W//2, self.window_H//2 + 60)))
-            return
+        elif self.state == "ending_classroom":
+            self.ending_ui.ending_classroom(screen, player.grade)
 
 
     # -------------------------------------------------
