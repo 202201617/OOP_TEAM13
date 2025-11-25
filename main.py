@@ -6,6 +6,7 @@ from player import *
 from object import *
 from map import *
 from ending import *
+from sound import SoundManager
 
 '''
 추가해야 하는 것
@@ -28,6 +29,10 @@ pygame.init()
 screen = pygame.display.set_mode((window_W, window_H))
 pygame.display.set_caption("학교 가BOO자고!")
 clock = pygame.time.Clock()
+
+# ===================== 사운드 초기화 및 로드 =====================
+sound = SoundManager()
+sound.play_bgm()   # 게임 시작 시 배경음악 재생
 
 FONT = pygame.font.Font("DNFBitBitTTF.ttf", 30)
 FONT_TITLE = pygame.font.Font("DNFBitBitTTF.ttf", 100)
