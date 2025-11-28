@@ -57,8 +57,8 @@ class Ending:
     def ending_dorm(self, screen, grade):
         screen.blit(self.image_dorm, (0, 0))
         
-        title = self.font_title.render("Zzz...", True, self.WHITE)
-        sub = self.font_title.render("체력이 다해 잠들었습니다.", True, self.WHITE)
+        title = self.font_title.render("", True, self.WHITE)
+        sub = self.font_title.render("", True, self.WHITE)
         
         screen.blit(title, (self.width//2 - title.get_width()//2, 150))
         screen.blit(sub, (self.width//2 - sub.get_width()//2, 220))

@@ -55,7 +55,7 @@ class Nut(Object):
 
 class CoffeeCup(Object):
     def __init__(self, x, y):
-        super().__init__(x, y, "image/coffee_test.png")
+        super().__init__(x, y, "image/coffee.png")
 
 COMMON_ITEMS = [Book, Energy, Soju, Nut, CoffeeCup]
 COMMON_WEIGHTS = [45, 10, 25, 10, 10]
