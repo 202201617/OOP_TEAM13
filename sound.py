@@ -13,27 +13,27 @@ class SoundManager:
             pygame.mixer.music.load("sound/bgm.mp3")
             pygame.mixer.music.set_volume(0.5)
         except:
-            print("⚠ BGM 파일(bgm.mp3)을 찾을 수 없습니다.")
+            print("BGM 파일(bgm.mp3)을 찾을 수 없습니다.")
 
         # ===== 효과음 로드 =====
         try:
             self.jump_sound = pygame.mixer.Sound("sound/jump.wav")
             self.jump_sound.set_volume(0.7)
         except:
-            print("⚠ jump.wav 파일을 찾을 수 없습니다.")
+            print("jump.wav 파일을 찾을 수 없습니다.")
 
         try:
             self.item_sound = pygame.mixer.Sound("sound/coin.wav")
             self.item_sound.set_volume(0.7)
         except:
-            print("⚠ item.wav 파일을 찾을 수 없습니다.")
+            print("item.wav 파일을 찾을 수 없습니다.")
 
 
         try:
             self.hit_sound = pygame.mixer.Sound("sound/hit.wav")
             self.hit_sound.set_volume(0.7)
         except:
-            print("⚠ hit.wav 파일을 찾을 수 없습니다.")
+            print("hit.wav 파일을 찾을 수 없습니다.")
 
     def play_bgm(self):
         if self.bgm_on:
@@ -54,7 +54,6 @@ class SoundManager:
         except:
             pass
 
-
     def play_hit(self):
         try:
             self.hit_sound.play()
@@ -72,3 +71,15 @@ class SoundManager:
     def quit(self):
         pygame.mixer.stop()
         pygame.mixer.quit()
+
+    #bgm on&off
+    def toggle_bgm(self):
+        self.bgm_on = not self.bgm_on
+
+        if self.bgm_on:
+            pygame.mixer.music.unpause()
+
+            if not pygame.mixer.music.get_busy():
+                self.play_bgm()
+        else:
+            pygame.mixer.music.pause()
