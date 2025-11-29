@@ -5,7 +5,7 @@ def check_collision(player, items, sound):
         if item.active and player.rect.colliderect(item.rect):
             apply_effect(player, item)
 
-            # 🔊 아이템 획득 사운드 재생
+            #아이템 획득 사운드 재생
             sound.play_item()
 
             item.active = False
@@ -49,4 +49,3 @@ def apply_effect(player, item):
 
     elif getattr(item, "name", "") == "O_stu":
         player.have_O_stu = True
-

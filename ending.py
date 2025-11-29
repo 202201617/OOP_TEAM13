@@ -3,7 +3,6 @@ from map import *
 from player import *
 
 '''
-엔딩 멘트 변경
 엔딩 페이드 추가
 '''
 
@@ -32,16 +31,13 @@ class Ending:
         # 최고 학점(Best Score)
         self.best_grade = 0.0
 
-    # ---------------------------------------
+
     # 엔딩 진입할 때 최고 학점 갱신
-    # ---------------------------------------
     def update_best_grade(self, grade):
         if grade > self.best_grade:
             self.best_grade = grade
 
-    # ---------------------------------------
     # 최종 학점 + 최고 학점 표시
-    # ---------------------------------------
     def draw_final_grade(self, screen, grade):
         # 최종 학점
         txt = self.font_text.render(f"최종 학점: {grade:.2f}", True, self.WHITE)
@@ -55,9 +51,7 @@ class Ending:
         pygame.draw.rect(screen, (0, 0, 0), best_rect.inflate(20, 10))
         screen.blit(best, best_rect)
 
-    # ---------------------------------------
     # 버튼
-    # ---------------------------------------
     def draw_buttons(self, screen):
         pygame.draw.rect(screen, self.WHITE, self.rect_restart)
         txt_restart = self.font_btn.render("다시 시작하기", True, self.BLACK)
@@ -103,8 +97,17 @@ class Ending:
     def ending_classroom(self, screen, grade):
         screen.blit(self.image_classroom, (0, 0))
         
-        msg = f"축하합니다. {grade:.2f}학점을 받았습니다."
-        title = self.font_title.render(msg, True, self.BLACK)
+        if grade == 4.50:
+            text = "A+"
+        elif grade >= 4.00:
+            text = "A0"
+        elif grade >= 3.50:
+            text = "B+"
+        elif grade >= 3.00:
+            text = "B0"
+
+        msg = f"축하합니다. {text}학점을 받았습니다."
+        title = self.font_title.render(msg, True, self.WHITE)
 
         screen.blit(title, (self.width//2 - title.get_width()//2, 200))
         self.draw_final_grade(screen, grade)

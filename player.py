@@ -17,7 +17,6 @@ class Player:
 
         # 명수당(보너스) 전용 — 날고 있는 이미지
         self.image_fly = pygame.image.load("image/fly_boo.png").convert_alpha()
-        self.image_fly = pygame.transform.scale(self.image_fly, (self.width, self.height))
 
         # 처음에는 달리기 이미지 적용
         self.image = self.image_boo

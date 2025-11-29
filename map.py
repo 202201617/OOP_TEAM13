@@ -97,36 +97,48 @@ class Map:
 
         # ------ 학생회관 ------
         elif self.current_stage == "student_hall":
+            # B/O/O 모두 모으면 명수당
+            # 1) 명수당 진입 조건
+            #    (학생회관에서 O를 먹는 순간 = have_O_stu True)
 
-            # 명수당 진입 조건 (B/O/O 모두 모으면)
+            #학생회관에 있던 도중 명수당으로 이동하면 어떻게 되는지?
             if (player.have_B and player.have_O_lib and player.have_O_stu and not self.entered_bonus):
 
+                 # 지금까지 학생회관에서 흘렀던 시간 저장
                 self.student_elapsed_before_bonus = elapsed
 
+                # 명수당으로 이동
                 self.current_stage = "bonus"
                 self.stage_start_ticks = now
                 self.entered_bonus = True
 
+                # 부 날기 모드
                 player.set_fly_mode()
 
                 self.spawn_stage_items("bonus", player)
 
-            # 학생회관 20초가 끝난 경우 → 바로 교양관 이동
+            # 2) 학생회관 20초가 모두 지났을 때 → 학점 판정
             elif elapsed >= self.duration:
+                # 학생회관까지 끝난 시점 기준으로 BEST 갱신
+                self.ending_ui.update_best_grade(player.grade)
 
-                self.current_stage = "liberal_arts_building"
-                self.stage_start_ticks = now
+                if player.grade <= 2.50:
+                    # 2.50 미만 → 재수강 엔딩
+                    self.state = "ending_retry"
+                else:
+                    # 2.50 이상 → 교양관 이동
+                    self.current_stage = "liberal_arts_building"
+                    self.stage_start_ticks = now
 
-                player.set_boo_mode()
+                    player.set_boo_mode()
 
-                self.spawn_stage_items("liberal_arts_building", player)
+                    self.spawn_stage_items("liberal_arts_building", player)
 
-        # -------------------------------------------------
+
         # 명수당 (보너스 맵, 10초)
         #   - 학생회관 시간은 멈춘 상태
         #   - 10초 후 다시 학생회관으로 돌아가서
         #     멈춰 있었던 시간부터 다시 진행
-        # -------------------------------------------------
         elif self.current_stage == "bonus":
 
             if elapsed >= self.bonus_duration:
@@ -143,20 +155,14 @@ class Map:
                 # 학생회관 아이템 다시 생성 (원하면 생략 가능)
                 self.spawn_stage_items("student_hall", player)
 
-        # -------------------------------------------------
+
         # 교양관 → 20초 버티면 강의실 클리어 엔딩
-        # -------------------------------------------------
+        #   (재수강 여부는 이미 학생회관에서 판정 끝)
         elif self.current_stage == "liberal_arts_building":
 
             if elapsed >= self.duration:
-
                 self.ending_ui.update_best_grade(player.grade)
-
-                if player.grade <= 2.5:
-                    self.state = "ending_retry"
-                else:
-                    self.state = "ending_classroom"
-
+                self.state = "ending_classroom"
                 self.ending_start_ticks = pygame.time.get_ticks()
 
 
