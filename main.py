@@ -30,6 +30,10 @@ screen = pygame.display.set_mode((window_W, window_H))
 pygame.display.set_caption("학교 가BOO자고!")
 clock = pygame.time.Clock()
 
+# 사운드 초기화 및 로드
+sound = SoundManager()
+sound.play_bgm()
+
 FONT = pygame.font.Font("DNFBitBitTTF.ttf", 30)
 FONT_TITLE = pygame.font.Font("DNFBitBitTTF.ttf", 100)
 
