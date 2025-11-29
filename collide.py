@@ -37,11 +37,12 @@ def apply_effect(player, item):
         else:
             player.grade = compare
 
-    elif item.name == "B":
-        player.have_B = False
+    elif getattr(item, "name", "") == "B":
+        player.have_B = True
 
-    elif item.name == "O_lib":
-        player.have_O_lib = False
+    elif getattr(item, "name", "") == "O_lib":
+        player.have_O_lib = True
 
-    elif item.name == "O_stu":
-        player.have_O_stu = False
+    elif getattr(item, "name", "") == "O_stu":
+        player.have_O_stu = True
+
