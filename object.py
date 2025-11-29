@@ -44,6 +44,10 @@ class O_stu(Object):
         super().__init__(x, y, "image/o_student_hall.png")
         self.name = "O_stu"
 
+class BonusBook(Object):
+    def __init__(self, x, y):
+        super().__init__(x, y, "image/book.png")
+
 # 장애물
 class Soju(Object):
     def __init__(self, x, y):
@@ -58,7 +62,7 @@ class CoffeeCup(Object):
         super().__init__(x, y, "image/coffee.png")
 
 COMMON_ITEMS = [Book, Energy, Soju, Nut, CoffeeCup]
-COMMON_WEIGHTS = [45, 10, 25, 10, 10]
+COMMON_WEIGHTS = [40, 10, 30, 10, 10]
 
 '''
 추가로 명수당에서는 장애물 없이 아이템만 등장하고 점수가 변동되는 데
@@ -68,8 +72,8 @@ COMMON_WEIGHTS = [45, 10, 25, 10, 10]
 def create_random_items(seconds, speed, screen_width, screen_height, stage_name, player):
     items = []
 
-    #30초동안 나오게 되어있음
-    total_distance = (seconds + 2) * 30 * speed
+    #20초동안 나오게 되어있음
+    total_distance = (seconds + 2) * 20 * speed
     current_x = screen_width + 100
 
     current_pool = COMMON_ITEMS[:]
@@ -91,6 +95,10 @@ def create_random_items(seconds, speed, screen_width, screen_height, stage_name,
         bonus_item_class = O_stu
         current_pool.append(bonus_item_class)
         curernt_weights.append(5)
+
+    elif stage_name == "bonus":
+        current_pool = [BonusBook, Energy]
+        curernt_weights = [80, 20]
 
     is_spawned = False
 
