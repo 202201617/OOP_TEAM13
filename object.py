@@ -44,6 +44,10 @@ class O_stu(Object):
         super().__init__(x, y, "image/o_student_hall.png")
         self.name = "O_stu"
 
+class BonusBook(Object):
+    def __init__(self, x, y):
+        super().__init__(x, y, "image/book.png")
+
 # 장애물
 class Soju(Object):
     def __init__(self, x, y):
@@ -68,7 +72,7 @@ COMMON_WEIGHTS = [40, 10, 30, 10, 10]
 def create_random_items(seconds, speed, screen_width, screen_height, stage_name, player):
     items = []
 
-    #30초동안 나오게 되어있음
+    #20초동안 나오게 되어있음
     total_distance = (seconds + 2) * 20 * speed
     current_x = screen_width + 100
 
