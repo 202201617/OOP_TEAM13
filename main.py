@@ -74,6 +74,7 @@ while running:
             if game_state == "playing" and map.is_playing:
                 if event.key == pygame.K_SPACE:
                     player.jump()
+                    sound.play_jump()
 
          # 마우스 클릭 입력 (버튼 클릭)
         elif event.type == MOUSEBUTTONDOWN:
@@ -95,7 +96,7 @@ while running:
                     game_state = "playing"
                     map.reset()
 
-            # 엔딩 화면
+             # 엔딩 화면
             elif game_state == "playing" and not map.is_playing:
                 action = map.ending_ui.check_click(event.pos)
 
@@ -128,6 +129,9 @@ while running:
         # 1) 맵 업데이트 (GPA/HP 조건 판단 포함)
         map.update(player)
 
+        if not map.is_playing:
+            sound.stop_bgm()
+
         # 2) 맵 그리고 엔딩 상태면 알아서 그려줌
         map.draw(screen, player)
 
@@ -150,7 +154,8 @@ while running:
                 item.draw(screen)
 
             # 6) 아이템/장애물 충돌 확인
-            check_collision(player, map.items)
+            check_collision(player, map.items, sound)
+
 
     pygame.display.update()
     clock.tick(FPS)
