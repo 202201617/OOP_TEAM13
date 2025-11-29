@@ -11,9 +11,16 @@ class Player:
         
         self.reset()
 
-        # 이미지 로드
-        self.image = pygame.image.load("image/boo.png").convert_alpha()
-        self.image = pygame.transform.scale(self.image, (self.width, self.height))
+        # 기본 이미지 로드
+        self.image_boo = pygame.image.load("image/boo.png").convert_alpha()
+        self.image_boo = pygame.transform.scale(self.image_boo, (self.width, self.height))
+
+        # 명수당(보너스) 전용 — 날고 있는 이미지
+        self.image_fly = pygame.image.load("image/fly_boo.png").convert_alpha()
+        self.image_fly = pygame.transform.scale(self.image_fly, (self.width, self.height))
+
+        # 처음에는 달리기 이미지 적용
+        self.image = self.image_boo
 
         # 물리 요소
         self.gravity = 1
@@ -83,6 +90,14 @@ class Player:
 
         self.x = self.rect.x
         self.y = self.rect.y
+
+    # 명수당 입장 → 날기 이미지 적용
+    def set_fly_mode(self):
+        self.image = self.image_fly
+
+    # 명수당 종료 → 다시 기본 이미지
+    def set_boo_mode(self):
+        self.image = self.image_boo
 
     # 부 그리기
     def draw(self, screen):

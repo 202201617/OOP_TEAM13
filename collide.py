@@ -32,6 +32,13 @@ def apply_effect(player, item):
         if player.hp > 0:
             player.hp -= 1
 
+    elif item.__class__.__name__ == "BonusBook":
+        compare = player.grade + 0.20
+        if compare >= 4.50:
+            player.grade = 4.50
+        else:
+            player.grade = compare
+
     elif item.name == "B":
         player.have_B = False
 
