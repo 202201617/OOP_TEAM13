@@ -102,7 +102,7 @@ class Map:
             #    (학생회관에서 O를 먹는 순간 = have_O_stu True)
 
             #학생회관에 있던 도중 명수당으로 이동하면 어떻게 되는지?
-            if player.have_O_stu and not self.entered_bonus:
+            if (player.have_B and player.have_O_lib and player.have_O_stu and not self.entered_bonus):
 
                  # 지금까지 학생회관에서 흘렀던 시간 저장
                 self.student_elapsed_before_bonus = elapsed
