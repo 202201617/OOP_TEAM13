@@ -30,10 +30,6 @@ screen = pygame.display.set_mode((window_W, window_H))
 pygame.display.set_caption("학교 가BOO자고!")
 clock = pygame.time.Clock()
 
-# ===================== 사운드 초기화 및 로드 =====================
-sound = SoundManager()
-sound.play_bgm()   # 게임 시작 시 배경음악 재생
-
 FONT = pygame.font.Font("DNFBitBitTTF.ttf", 30)
 FONT_TITLE = pygame.font.Font("DNFBitBitTTF.ttf", 100)
 
@@ -108,8 +104,14 @@ while running:
                 
                 elif action == "restart":
                     player.reset()
+                    player.set_boo_mode()
                     map.reset()
-                    items = create_random_items(120, map.item_speed, window_W, window_H, player)
+                    
+                    # 아이템 새로 생성
+                    map.spawn_stage_items("main_building", player)
+
+                    # 플레이 상태로 전환
+                    game_state = "playing"
 
       # 화면 그리기 
     if game_state == "menu":
