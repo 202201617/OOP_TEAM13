@@ -15,6 +15,8 @@ def apply_effect(player, item):
         compare = player.grade + 0.10
         if compare >= 4.50:
             player.grade = 4.50
+        else:
+            player.grade = compare
 
     elif item.__class__.__name__ == "Energy":
         if player.hp < 3:
