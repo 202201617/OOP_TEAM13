@@ -3,7 +3,7 @@ from player import *
 from object import create_random_items
 
 class Map:
-    def __init__(self, window_W, window_H, font_path="DNFBitBitTTF.ttf", map_duration_ms=30000):
+    def __init__(self, window_W, window_H, font_path="DNFBitBitTTF.ttf", map_duration_ms=20000):
         self.window_W = window_W
         self.window_H = window_H
         self.duration = map_duration_ms
@@ -60,11 +60,15 @@ class Map:
         if self.state != "playing":
             return
         
+        # HP 0 → 도미토리 엔딩
         if player.hp <= 0:
+            # 엔딩 들어가기 전에 BEST 갱신
+            self.ending_ui.update_best_grade(player.grade)
             self.state = "ending_dorm"
             return
 
         now = pygame.time.get_ticks()
+
         if self.stage_start_ticks is None:
             self.stage_start_ticks = now
 
@@ -95,12 +99,16 @@ class Map:
                 self.current_stage = "bonus"
                 self.stage_start_ticks = now
 
+                player.set_fly_mode()
+
                 self.spawn_stage_items("bonus", player)
 
             # 30초 지나면 교양관
             elif elapsed >= self.duration:
                 self.current_stage = "liberal_arts_building"
                 self.stage_start_ticks = now
+
+                player.set_boo_mode()
 
                 self.spawn_stage_items("liberal_arts_building", player)
 
@@ -111,12 +119,16 @@ class Map:
                 self.current_stage = "liberal_arts_building"
                 self.stage_start_ticks = now
 
+                player.set_boo_mode()
+
                 self.spawn_stage_items("liberal_arts_building", player)
 
         # ------ 교양관 ------
         elif self.current_stage == "liberal_arts_building":
-            # 30초 버티면 강의실 → GPA 판정
+
             if elapsed >= self.duration:
+                # 엔딩 진입 시 BEST 갱신
+                self.ending_ui.update_best_grade(player.grade)
 
                 if player.grade <= 2.5:
                     self.state = "ending_retry"
@@ -143,7 +155,6 @@ class Map:
             self.ending_ui.ending_classroom(screen, player.grade)
 
 
-    # -------------------------------------------------
     @property
     def is_playing(self):
         return self.state == "playing"
